@@ -1,3 +1,4 @@
+TLDR; do TODOs and include linked list stuff
 >two threads: thread #1 (T1) allocates space for pointer p to hold THREADDATA
 	      thread #2 (T2) deallocates space in pointer p which holds THREADDATA
 	-use template code provided: main2_a5.c
@@ -25,7 +26,6 @@
 >log index is shared between threads
 	-employ protectio similar to allocation and deallocation of THREADDATA pointer
 	-mutex locking?
-
 
 compile code with:
 gcc -D_REENTRANT -pthread -o thread_manager thread_manager.c
