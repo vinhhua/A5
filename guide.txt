@@ -24,7 +24,7 @@ TLDR; do TODOs and include linked list stuff
 	-time can be taken from template code: time.c
 
 >log index is shared between threads
-	-employ protectio similar to allocation and deallocation of THREADDATA pointer
+	-employ protection similar to allocation and deallocation of THREADDATA pointer
 	-mutex locking?
 
 compile code with:
