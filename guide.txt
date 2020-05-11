@@ -1,0 +1,33 @@
+TLDR; do TODOs and include linked list stuff
+>two threads: thread #1 (T1) allocates space for pointer p to hold THREADDATA
+	      thread #2 (T2) deallocates space in pointer p which holds THREADDATA
+	-use template code provided: main2_a5.c
+
+>protect critical section of malloc using locks:
+	-T2 checks if p is set to NULL before performing deallocation
+	-call malloc before going to T2
+>protect critical section of free using locks
+	-set p = NULL before going to T1
+
+>T1 reads lines in from user and saves into new node in linked list
+	-use fgets(buf, 100, stdin) to read lines (limit 20 char)
+	-(while loop)stop when empty line (char=0 or \n?) or Ctrl+C
+
+>T2 prints content of first node when content changes (from T1)
+	-protect critical section reading and updating first node
+
+>T2 exits when T1 which reads lines is complete
+	-set reading_complete flag
+
+>Both threads print messages to stdout
+	-"Logindex 1, thread 2, PID 5435, 21/04/2020 09:23:25 pm:  Head of linked list contains line foo".
+	-time can be taken from template code: time.c
+
+>log index is shared between threads
+	-employ protection similar to allocation and deallocation of THREADDATA pointer
+	-mutex locking?
+
+compile code with:
+gcc -D_REENTRANT -pthread -o thread_manager thread_manager.c
+
+utilize valgrind to check for memory leaks
