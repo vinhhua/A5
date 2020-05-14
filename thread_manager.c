@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <time.h>
+#include "CommandNode.h"
 
 // TODO: read in stdin and store into the head of linked list.
 //thread mutex lock for access to the log index.
@@ -27,6 +28,12 @@ THREADDATA* p=NULL;
 //variable for indexing of messages by the logging function
 int logindex=0;
 int *logip = &logindex;
+
+//variables to store user input
+char buffer[100];
+char *result;
+
+//TODO create head node here
 
 
 //A flag to indicate if the reading of input is complete, 
@@ -56,15 +63,12 @@ int main() {
 
 }//end main
 
-
 /**********************************************************************
 // function thread_runner runs inside each thread -------------------------------------------------- 
 **********************************************************************/
 void* thread_runner(void* x)
 {
     pthread_t me;
-    char input[100];
-    char *result;
     me = pthread_self();
     printf("This is thread %ld (p=%p)\n",me,p);
   
@@ -73,13 +77,21 @@ void* thread_runner(void* x)
 	p = (THREADDATA*) malloc(sizeof(THREADDATA));
     	p->creator=me;
     }
-    pthread_mutex_unlock(&tlock2);  // critical section ends
+    pthread_mutex_unlock(&tlock2);  // critical section end 
+    CommandNode *head = (CommandNode *)malloc(sizeof(CommandNode));
+    CreateCommandNode(head, buffer, logindex, NULL); 
     
     // TODO CommandNode *command
     if (p!=NULL && p->creator==me) {// this is thread 1 right here
 	// this code block here should read user input and store it in variable result. 
-	while ((result = fgets(input, 100, stdin)) != NULL) 
+	while ((result = fgets(buffer, 100, stdin)) != NULL) { 
    	    if (*result == '\n') break;
+	    if (strcmp(head->command, result) != 0) { 
+		strcpy(head->command, result);
+		printf("content updated :%s", head->command);
+	    }
+	}
+
     	printf("This is thread %ld and I created the THREADDATA %p\n",me,p);
     } else {
 	// before printing any log messages, mutex_lock(locklogindex) so it does not mess up the counting.
@@ -100,10 +112,9 @@ void* thread_runner(void* x)
     /**
      * TODO Free the THREADATA object. Freeing should be done by the other thread from the one that created it.
      * See how the THREADDATA was created for an example of how this is done.
-     */ pthread_mutex_lock(&lock);
-    	free(p);
+     */ //pthread_mutex_lock(&lock);
     	printf("This is thread %ld and I deleted the THREADDATA\n",me);
-	pthread_mutex_unlock(&lock);
+	//pthread_mutex_unlock(&lock);
     }
     // TODO critical section ends
     pthread_mutex_unlock(&tlock1);
