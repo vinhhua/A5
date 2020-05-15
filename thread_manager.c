@@ -9,8 +9,6 @@
 #include "CommandNode.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-// TODO: read in stdin and store into the head of linked list.
-//thread mutex lock for access to the log index.
 // sample output: "Logindex 1, thread 2, PID 5435, DATE TIME: Head of the linked list contains line foo."
 //thread mutex lock for log index incrementation
 pthread_mutex_t tlock1 = PTHREAD_MUTEX_INITIALIZER;
