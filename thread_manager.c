@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
@@ -11,8 +12,10 @@
 // sample output: "Logindex 1, thread 2, PID 5435, DATE TIME: Head of the linked list contains line foo."
 pthread_mutex_t tlock1 = PTHREAD_MUTEX_INITIALIZER;
 //thread mutex lock for critical sections of allocating THREADDATA
-pthread_mutex_t tlock2 = PTHREAD_MUTEX_INITIALIZER; 
-
+pthread_mutex_t tlock2 = PTHREAD_MUTEX_INITIALIZER;
+ 
+pthread_mutex_t lock1 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t lockhead = PTHREAD_MUTEX_INITIALIZER;
 void* thread_runner(void*);
 void print_current_time(void);
 pthread_t tid1, tid2;
@@ -83,17 +86,32 @@ void* thread_runner(void* x)
     
     // TODO CommandNode *command
     if (p!=NULL && p->creator==me) {// this is thread 1 right here
-	// this code block here should read user input and store it in variable result. 
-	while ((result = fgets(buffer, 100, stdin)) != NULL) { 
-   	    if (*result == '\n') break;
-	    if (strcmp(head->command, result) != 0) { 
-		strcpy(head->command, result);
-		printf("content updated :%s", head->command);
+	/* this code block here should read user input and store it in variable result and store it into
+	   the node head.*/ 
+	while ((result = fgets(buffer, 100, stdin)) != NULL) {
+	    pthread_mutex_lock(&tlock1);
+	    strcpy(head->command, result);
+	    pthread_mutex_unlock(&tlock1); 
+   	    if (*result == '\n') {
+	        pthread_mutex_lock(&tlock1);
+                is_reading_complete = true;
+	        pthread_mutex_unlock(&tlock1);
+		break;
 	    }
+
 	}
 
     	printf("This is thread %ld and I created the THREADDATA %p\n",me,p);
     } else {
+	while (!is_reading_complete) {
+	    sleep(2);
+	    if (strcmp(head->command, buffer) != 0) {
+		pthread_mutex_lock(&lockhead);
+		strcpy(head->command, result);
+		printf("Head of linked list contains line : %s\n", head->command);
+		pthread_mutex_unlock(&lockhead);
+	    }
+	}
 	// before printing any log messages, mutex_lock(locklogindex) so it does not mess up the counting.
 	// before updating the head from thread 1 use mutex_lock(lockhead) and then mutex_unlock(lockhead).
 	// something like while (!is_read_complete) { sleep(2);
