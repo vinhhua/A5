@@ -112,6 +112,8 @@ void* thread_runner(void* x)
         while ((result = fgets(buffer, 100, stdin)) != NULL) {
             pthread_mutex_lock(&lockhead);
             strcpy(head->command, result);     //change thread2
+            setLog(logip, me, p);
+            printf("Head node refreshed\n");
             pthread_mutex_unlock(&lockhead);
             if (*result == '\n') {
                 pthread_mutex_lock(&tlock3);
